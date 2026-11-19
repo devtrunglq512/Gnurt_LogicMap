@@ -1,0 +1,192 @@
+# =============================================================================
+#  Unity .gitattributes  (Unity 6 / 6000.x)
+#  - Chuẩn hoá line ending cho file text
+#  - File YAML của Unity: không đổi line ending, dùng Unity Smart Merge
+#  - File binary lớn: lưu bằng Git LFS (cần chạy `git lfs install` một lần)
+#  Dòng phía dưới sẽ ghi đè dòng phía trên nếu cùng khớp một file.
+# =============================================================================
+
+# ---- Mặc định: git tự nhận diện text và lưu LF trong repo ----
+* text=auto
+
+# ---- Code & text ----
+*.cs             text diff=csharp
+*.shader         text
+*.shadergraph    text
+*.shadersubgraph text
+*.cginc          text
+*.hlsl           text
+*.glsl           text
+*.compute        text
+*.raytrace       text
+*.uss            text
+*.uxml           text
+*.tss            text
+*.asmdef         text
+*.asmref         text
+*.inputactions   text
+*.json           text
+*.xml            text
+*.yml            text
+*.yaml           text
+*.md             text
+*.txt            text
+*.csv            text
+*.html           text
+*.css            text
+*.js             text
+*.svg            text
+*.gradle         text
+*.pro            text
+*.properties     text
+*.pom            text
+*.java           text
+*.kt             text
+*.h              text
+*.c              text
+*.cpp            text
+*.m              text
+*.mm             text
+*.swift          text
+*.plist          text
+*.rsp            text
+
+# Script chạy theo nền tảng
+*.sh             text eol=lf
+*.bat            text eol=crlf
+*.cmd            text eol=crlf
+*.ps1            text eol=crlf
+*.sln            text eol=crlf
+*.csproj         text eol=crlf
+
+# ---- Unity YAML (Force Text serialization) ----
+# -text : giữ nguyên line ending Unity ghi ra (an toàn cả khi file .asset là binary)
+# diff  : vẫn hiển thị diff dạng text
+# merge=unityyamlmerge : dùng Unity Smart Merge nếu đã cấu hình trong git config
+*.meta                 -text merge=unityyamlmerge diff
+*.unity                -text merge=unityyamlmerge diff
+*.prefab               -text merge=unityyamlmerge diff
+*.asset                -text merge=unityyamlmerge diff
+*.mat                  -text merge=unityyamlmerge diff
+*.anim                 -text merge=unityyamlmerge diff
+*.controller           -text merge=unityyamlmerge diff
+*.overrideController   -text merge=unityyamlmerge diff
+*.mask                 -text merge=unityyamlmerge diff
+*.playable             -text merge=unityyamlmerge diff
+*.signal               -text merge=unityyamlmerge diff
+*.physicMaterial       -text merge=unityyamlmerge diff
+*.physicsMaterial      -text merge=unityyamlmerge diff
+*.physicsMaterial2D    -text merge=unityyamlmerge diff
+*.mixer                -text merge=unityyamlmerge diff
+*.preset               -text merge=unityyamlmerge diff
+*.lighting             -text merge=unityyamlmerge diff
+*.giparams             -text merge=unityyamlmerge diff
+*.renderTexture        -text merge=unityyamlmerge diff
+*.spriteatlas          -text merge=unityyamlmerge diff
+*.spriteatlasv2        -text merge=unityyamlmerge diff
+*.terrainlayer         -text merge=unityyamlmerge diff
+*.brush                -text merge=unityyamlmerge diff
+*.flare                -text merge=unityyamlmerge diff
+*.fontsettings         -text merge=unityyamlmerge diff
+*.guiskin              -text merge=unityyamlmerge diff
+*.shadervariants       -text merge=unityyamlmerge diff
+*.scenetemplate        -text merge=unityyamlmerge diff
+*.cubemap              -text merge=unityyamlmerge diff
+*.unityproj            -text merge=unityyamlmerge diff
+
+# ---- Git LFS: hình ảnh ----
+*.png      filter=lfs diff=lfs merge=lfs -text
+*.jpg      filter=lfs diff=lfs merge=lfs -text
+*.jpeg     filter=lfs diff=lfs merge=lfs -text
+*.gif      filter=lfs diff=lfs merge=lfs -text
+*.bmp      filter=lfs diff=lfs merge=lfs -text
+*.tga      filter=lfs diff=lfs merge=lfs -text
+*.tif      filter=lfs diff=lfs merge=lfs -text
+*.tiff     filter=lfs diff=lfs merge=lfs -text
+*.psd      filter=lfs diff=lfs merge=lfs -text
+*.psb      filter=lfs diff=lfs merge=lfs -text
+*.ai       filter=lfs diff=lfs merge=lfs -text
+*.exr      filter=lfs diff=lfs merge=lfs -text
+*.hdr      filter=lfs diff=lfs merge=lfs -text
+*.iff      filter=lfs diff=lfs merge=lfs -text
+*.pict     filter=lfs diff=lfs merge=lfs -text
+*.webp     filter=lfs diff=lfs merge=lfs -text
+*.ico      filter=lfs diff=lfs merge=lfs -text
+*.dds      filter=lfs diff=lfs merge=lfs -text
+*.ktx      filter=lfs diff=lfs merge=lfs -text
+*.ktx2     filter=lfs diff=lfs merge=lfs -text
+*.astc     filter=lfs diff=lfs merge=lfs -text
+*.sbsar    filter=lfs diff=lfs merge=lfs -text
+
+# ---- Git LFS: 3D model ----
+*.fbx      filter=lfs diff=lfs merge=lfs -text
+*.obj      filter=lfs diff=lfs merge=lfs -text
+*.blend    filter=lfs diff=lfs merge=lfs -text
+*.max      filter=lfs diff=lfs merge=lfs -text
+*.ma       filter=lfs diff=lfs merge=lfs -text
+*.mb       filter=lfs diff=lfs merge=lfs -text
+*.3ds      filter=lfs diff=lfs merge=lfs -text
+*.dae      filter=lfs diff=lfs merge=lfs -text
+*.c4d      filter=lfs diff=lfs merge=lfs -text
+*.dxf      filter=lfs diff=lfs merge=lfs -text
+*.glb      filter=lfs diff=lfs merge=lfs -text
+*.abc      filter=lfs diff=lfs merge=lfs -text
+*.usd      filter=lfs diff=lfs merge=lfs -text
+*.usdz     filter=lfs diff=lfs merge=lfs -text
+*.spm      filter=lfs diff=lfs merge=lfs -text
+*.spt      filter=lfs diff=lfs merge=lfs -text
+*.st       filter=lfs diff=lfs merge=lfs -text
+
+# ---- Git LFS: âm thanh ----
+*.mp3      filter=lfs diff=lfs merge=lfs -text
+*.wav      filter=lfs diff=lfs merge=lfs -text
+*.ogg      filter=lfs diff=lfs merge=lfs -text
+*.aif      filter=lfs diff=lfs merge=lfs -text
+*.aiff     filter=lfs diff=lfs merge=lfs -text
+*.flac     filter=lfs diff=lfs merge=lfs -text
+*.mod      filter=lfs diff=lfs merge=lfs -text
+*.it       filter=lfs diff=lfs merge=lfs -text
+*.s3m      filter=lfs diff=lfs merge=lfs -text
+*.xm       filter=lfs diff=lfs merge=lfs -text
+*.bank     filter=lfs diff=lfs merge=lfs -text
+
+# ---- Git LFS: video ----
+*.mp4      filter=lfs diff=lfs merge=lfs -text
+*.mov      filter=lfs diff=lfs merge=lfs -text
+*.avi      filter=lfs diff=lfs merge=lfs -text
+*.webm     filter=lfs diff=lfs merge=lfs -text
+*.asf      filter=lfs diff=lfs merge=lfs -text
+*.mpg      filter=lfs diff=lfs merge=lfs -text
+*.mpeg     filter=lfs diff=lfs merge=lfs -text
+*.ogv      filter=lfs diff=lfs merge=lfs -text
+
+# ---- Git LFS: font ----
+*.ttf      filter=lfs diff=lfs merge=lfs -text
+*.otf      filter=lfs diff=lfs merge=lfs -text
+
+# ---- Git LFS: thư viện native / plugin (Firebase, SDK bên thứ 3...) ----
+*.dll      filter=lfs diff=lfs merge=lfs -text
+*.so       filter=lfs diff=lfs merge=lfs -text
+*.a        filter=lfs diff=lfs merge=lfs -text
+*.lib      filter=lfs diff=lfs merge=lfs -text
+*.dylib    filter=lfs diff=lfs merge=lfs -text
+*.bundle   filter=lfs diff=lfs merge=lfs -text
+*.aar      filter=lfs diff=lfs merge=lfs -text
+*.srcaar   filter=lfs diff=lfs merge=lfs -text
+*.jar      filter=lfs diff=lfs merge=lfs -text
+*.exe      filter=lfs diff=lfs merge=lfs -text
+
+# ---- Git LFS: archive & khác ----
+*.zip      filter=lfs diff=lfs merge=lfs -text
+*.7z       filter=lfs diff=lfs merge=lfs -text
+*.rar      filter=lfs diff=lfs merge=lfs -text
+*.gz       filter=lfs diff=lfs merge=lfs -text
+*.tgz      filter=lfs diff=lfs merge=lfs -text
+*.unitypackage filter=lfs diff=lfs merge=lfs -text
+*.pdf      filter=lfs diff=lfs merge=lfs -text
+*.bytes    filter=lfs diff=lfs merge=lfs -text
+*.raw      filter=lfs diff=lfs merge=lfs -text
+
+# ---- Trường hợp đặc biệt ----
+# LightingData.asset luôn là binary (kể cả khi bật Force Text) và có thể rất lớn
+LightingData.asset filter=lfs diff=lfs merge=lfs -text

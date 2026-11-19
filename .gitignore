@@ -1,0 +1,123 @@
+# =============================================================================
+#  Unity .gitignore  (Unity 6 / 6000.x)
+#  Đặt file này ở thư mục gốc của project Unity (cùng cấp với Assets/).
+# =============================================================================
+
+# ---- Thư mục do Unity tự sinh ----
+.utmp/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+*.log
+
+# ---- Blender backup ----
+*.blend1
+*.blend1.meta
+
+# ---- Asset Store Tools (bỏ comment nếu muốn ignore) ----
+# /[Aa]ssets/AssetStoreTools*
+
+# ---- IDE: Visual Studio / Rider / VS Code ----
+.vs/
+.idea/
+.vscode/
+.consulo/
+/[Aa]ssets/Plugins/Editor/JetBrains*
+*.DotSettings.user
+ExportedObj/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# ---- Gradle cache ----
+.gradle/
+
+# ---- Crash / Mono ----
+sysinfo.txt
+mono_crash.*
+
+# ---- Build output ----
+*.apk
+*.aab
+*.ipa
+*.app
+*.unitypackage
+*.unitypackage.meta
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# ---- Test Runner ----
+InitTestScene*.unity*
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# ---- Addressables ----
+/ServerData
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# ---- Visual Scripting ----
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+
+# ---- Firebase / External Dependency Manager (EDM4U) - file tự sinh ----
+crashlytics-build.properties
+/[Aa]ssets/StreamingAssets/google-services-desktop.json
+/[Aa]ssets/StreamingAssets/google-services-desktop.json.meta
+/[Aa]ssets/Plugins/Android/FirebaseApp.androidlib/
+/[Aa]ssets/Plugins/Android/FirebaseApp.androidlib.meta
+/[Aa]ssets/Plugins/Android/FirebaseCrashlytics.androidlib/
+/[Aa]ssets/Plugins/Android/FirebaseCrashlytics.androidlib.meta
+/[Aa]ssets/GeneratedLocalRepo/
+/[Aa]ssets/GeneratedLocalRepo.meta
+/ProjectSettings/AndroidResolverDependencies.xml
+
+# File cấu hình Firebase (chứa API key của app). Mặc định VẪN commit.
+# Bỏ comment nếu muốn giữ chúng ngoài repo:
+# google-services.json
+# google-services.json.meta
+# GoogleService-Info.plist
+# GoogleService-Info.plist.meta
+
+# Android keystore. Mặc định VẪN commit, bỏ comment nếu muốn giữ ngoài repo:
+# *.keystore
+# *.jks
+
+# ---- OS ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
