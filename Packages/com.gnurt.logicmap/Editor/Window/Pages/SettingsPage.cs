@@ -103,7 +103,7 @@ namespace Gnurt.LogicMap
                     ClaudeCli.Check();
                     Window.RefreshPage();
                 }, primary: true)));
-            card.Add(GnurtUI.Hint(Loc.T("Install: ", "Cài: ") + AskClaudePanel.InstallCommand));
+            card.Add(new ClaudeInstallControls());
             return card;
         }
 

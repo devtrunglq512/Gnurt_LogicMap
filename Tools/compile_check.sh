@@ -74,8 +74,9 @@ for version in "${VERSIONS[@]}"; do
     failed=1
     continue
   fi
-  if ! grep -q "Gnurt.LogicMap.Editor" "$log"; then
-    echo "[$version] Không thấy assembly Gnurt.LogicMap.Editor trong log (core chưa được cài?), xem: $log"
+  # Thiếu core thì assembly LogicMap bị bỏ qua mà không báo lỗi (GNURT_CORE), nên phải kiểm tra riêng.
+  if ! grep -q "com.gnurt.core@" "$log"; then
+    echo "[$version] Không thấy com.gnurt.core được cài, xem: $log"
     failed=1
     continue
   fi
@@ -89,6 +90,10 @@ for version in "${VERSIONS[@]}"; do
     fi
     summary="$(grep -o '<test-run[^>]*>' "$results" | grep -oE '(total|passed|failed|skipped)="[0-9]+"' | tr '\n' ' ')"
     echo "[$version] Test: $summary"
+    if ! grep -q "Gnurt.LogicMap.Tests" "$results"; then
+      echo "[$version] Không có test nào của LogicMap chạy (assembly chưa được compile?)"
+      failed=1
+    fi
     failed_tests="$(grep -oE '<test-case [^>]*result="Failed"[^>]*>' "$results" | grep -oE 'fullname="[^"]*"')"
     if [[ -n "$failed_tests" ]]; then
       echo "[$version] Test lỗi:"

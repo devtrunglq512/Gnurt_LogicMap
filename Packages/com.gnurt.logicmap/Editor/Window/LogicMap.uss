@@ -189,3 +189,15 @@
 .lm-chat__input { min-height: 56px; margin: 10px 0 0 0; }
 .lm-chat__input > .unity-text-field__input { white-space: normal; }
 .lm-clickable:hover { background-color: var(--gn-hover); }
+
+/* Output của trình cài Claude: vài dòng cuối, chữ nhỏ, cắt bớt dòng dài. */
+.lm-log {
+    font-size: 10px;
+    margin: 8px 0 0 0;
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: var(--gn-text-muted);
+    background-color: var(--gn-neutral-soft);
+    white-space: nowrap;
+    overflow: hidden;
+}

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -110,44 +109,14 @@ namespace Gnurt.LogicMap
 
         static string Run(string executable, string arguments)
         {
-            try
+            var output = new System.Text.StringBuilder();
+            var (fileName, args) = ProcessRunner.Wrap(executable, arguments);
+            var result = ProcessRunner.RunAsync(fileName, args, line =>
             {
-                var info = new ProcessStartInfo
-                {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true,
-                };
-                // File .cmd (bản cài qua npm trên Windows) phải chạy qua cmd.exe.
-                if (executable.EndsWith(".cmd", StringComparison.OrdinalIgnoreCase))
-                {
-                    info.FileName = "cmd.exe";
-                    info.Arguments = $"/c \"\"{executable}\" {arguments}\"";
-                }
-                else
-                {
-                    info.FileName = executable;
-                    info.Arguments = arguments;
-                }
-
-                using (var process = Process.Start(info))
-                {
-                    if (process == null) return null;
-                    var output = process.StandardOutput.ReadToEndAsync();
-                    process.StandardError.ReadToEndAsync();
-                    if (!process.WaitForExit(TimeoutMs))
-                    {
-                        try { process.Kill(); } catch { /* đã thoát */ }
-                        return null;
-                    }
-                    return output.Result;
-                }
-            }
-            catch
-            {
-                return null; // không chạy được: coi như không có
-            }
+                lock (output) output.AppendLine(line);
+            }, TimeoutMs).Result;
+            if (result.Error != null || result.TimedOut) return null; // không chạy được: coi như không có
+            lock (output) return output.ToString();
         }
     }
 }
