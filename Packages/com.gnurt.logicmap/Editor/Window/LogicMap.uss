@@ -1,0 +1,191 @@
+/* Style riêng của LogicMap, thêm vào sau GnurtWindow.uss và dùng chung bảng màu --gn-* của core. */
+
+.gnurt--dark {
+    --lm-canvas: #1a1a1a;
+    --lm-script: #3fb6a8;
+}
+
+.gnurt--light {
+    --lm-canvas: #f4f4f4;
+    --lm-script: #138a7e;
+}
+
+/* ---------- Sidebar: cuộn được khi game có nhiều map ---------- */
+
+.lm-sidebar-scroll {
+    width: 200px;
+    flex-shrink: 0;
+    background-color: var(--gn-surface);
+    border-right-width: 1px;
+    border-right-color: var(--gn-border);
+}
+
+.lm-sidebar-scroll .gnurt-sidebar { width: auto; border-right-width: 0; }
+.gnurt-nav-item__label { flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lm-nav-badge { font-size: 9px; padding: 1px 5px; margin-left: 4px; flex-shrink: 0; }
+.lm-nav-item--off .gnurt-nav-item__label { color: var(--gn-text-muted); }
+
+/* ---------- Thẻ mục trên trang Tổng quan ---------- */
+
+.lm-tiles { flex-direction: row; flex-wrap: wrap; margin: 0 -6px 8px -6px; }
+
+.lm-tile {
+    flex-grow: 1;
+    flex-basis: 220px;
+    max-width: 360px;
+    margin: 0 6px 12px 6px;
+    padding: 12px 14px;
+    background-color: var(--gn-surface-raised);
+    border-width: 1px;
+    border-left-width: 4px;
+    border-color: var(--gn-border);
+    border-radius: 8px;
+}
+
+.lm-tile:hover { border-top-color: var(--gn-text-muted); border-right-color: var(--gn-text-muted); border-bottom-color: var(--gn-text-muted); }
+.lm-tile--scene { border-left-color: var(--gn-accent); }
+.lm-tile--prefab { border-left-color: var(--gn-gold); }
+.lm-tile--off { opacity: 0.7; border-left-color: var(--gn-text-muted); }
+.lm-tile__title { font-size: 14px; -unity-font-style: bold; color: var(--gn-text); padding: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lm-tile__summary { margin-top: 4px; font-size: 12px; color: var(--gn-text-muted); white-space: normal; padding: 0; }
+.lm-tile__badges { flex-direction: row; flex-wrap: wrap; margin: 8px 0 0 -6px; }
+.lm-tile__badges > * { margin-top: 2px; }
+
+/* ---------- Bố cục: chart ở giữa, panel bên phải ---------- */
+
+.lm-split { flex-direction: row; flex-wrap: wrap; align-items: flex-start; margin: 0 -6px; }
+.lm-split__main { flex-grow: 1; flex-shrink: 1; flex-basis: 420px; min-width: 320px; margin: 0 6px 12px 6px; }
+.lm-side { width: 300px; flex-shrink: 0; margin: 0 6px 0 6px; }
+
+/* ---------- Chart ---------- */
+
+.lm-chart {
+    overflow: hidden;
+    background-color: var(--lm-canvas);
+    border-width: 1px;
+    border-color: var(--gn-border);
+    border-radius: 8px;
+}
+
+.lm-chart:focus { border-color: var(--gn-accent); }
+.lm-chart--panning { cursor: pan; }
+.lm-chart__content { position: absolute; left: 0; top: 0; }
+.lm-chart__edges,
+.lm-chart__layer { position: absolute; left: 0; top: 0; }
+.lm-chart__empty { position: absolute; left: 16px; top: 16px; right: 16px; }
+
+.lm-chart__toolbar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    flex-direction: row;
+    padding: 2px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: var(--gn-border);
+    background-color: var(--gn-surface);
+}
+
+.lm-chart__tool {
+    min-width: 24px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    color: var(--gn-text);
+}
+
+.lm-chart__tool:hover { background-color: var(--gn-hover); }
+.lm-chart__zoom { min-width: 44px; color: var(--gn-text-muted); }
+
+.lm-chart__hint {
+    position: absolute;
+    left: 10px;
+    bottom: 6px;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: var(--lm-canvas);
+}
+
+/* ---------- Ô ---------- */
+
+.lm-node {
+    position: absolute;
+    min-width: 110px;
+    max-width: 220px;
+    padding: 7px 12px;
+    justify-content: center;
+    background-color: var(--gn-surface-raised);
+    border-width: 1px;
+    border-color: var(--gn-border);
+    border-radius: 6px;
+}
+
+.lm-node:hover { border-color: var(--gn-text-muted); }
+.lm-node__body { align-items: center; }
+.lm-node__title { font-size: 12px; -unity-font-style: bold; -unity-text-align: middle-center; white-space: normal; color: var(--gn-text); padding: 0; margin: 0; }
+.lm-node__subtitle { font-size: 10px; -unity-text-align: middle-center; white-space: normal; color: var(--gn-text-muted); padding: 0; margin: 2px 0 0 0; }
+
+/* Mục (scene/prefab): vạch màu bên trái. Nhóm: thêm vạch dưới như nhiều thẻ xếp chồng. */
+.lm-node--section,
+.lm-node--group { border-left-width: 4px; }
+.lm-node--group { border-bottom-width: 4px; }
+.lm-tone--scene.lm-node--section,
+.lm-tone--scene.lm-node--group { border-left-color: var(--gn-accent); border-bottom-color: var(--gn-accent-soft); }
+.lm-tone--prefab.lm-node--section,
+.lm-tone--prefab.lm-node--group { border-left-color: var(--gn-gold); border-bottom-color: var(--gn-warning-soft); }
+
+/* Bước trong script: vạch xanh ngọc phía trên. */
+.lm-node--process.lm-tone--script { border-top-width: 3px; border-top-color: var(--lm-script); }
+
+/* Bắt đầu / kết thúc: viên thuốc. */
+.lm-node--start,
+.lm-node--end { border-radius: 16px; padding: 7px 16px; }
+.lm-node--start { background-color: var(--gn-accent); border-color: var(--gn-accent); }
+.lm-node--start .lm-node__title { color: #ffffff; }
+.lm-node--start .lm-node__subtitle { color: rgba(255, 255, 255, 0.8); }
+
+.lm-node--unknown { background-color: var(--gn-neutral-soft); border-color: var(--gn-text-muted); }
+.lm-node--unknown .lm-node__title { -unity-font-style: bold-and-italic; color: var(--gn-text-muted); }
+
+/* Ô thoi: không viền, không nền (vẽ bằng Painter2D), chữ hẹp hơn để hình thoi không quá to. */
+.lm-node--decision { background-color: rgba(0, 0, 0, 0); border-width: 0; padding: 0; min-width: 0; max-width: none; align-items: center; }
+.lm-node--decision .lm-node__body { max-width: 150px; }
+
+.lm-node--highlight { border-color: var(--gn-accent); border-top-color: var(--gn-accent); border-right-color: var(--gn-accent); border-bottom-color: var(--gn-accent); }
+.lm-node--selected,
+.lm-node--selected:hover { border-color: var(--gn-gold); border-top-color: var(--gn-gold); border-right-color: var(--gn-gold); border-bottom-color: var(--gn-gold); border-left-color: var(--gn-gold); background-color: var(--gn-surface); }
+.lm-node--decision.lm-node--selected { background-color: rgba(0, 0, 0, 0); }
+
+.lm-edge-label {
+    position: absolute;
+    font-size: 10px;
+    padding: 0 3px;
+    border-radius: 3px;
+    color: var(--gn-text-muted);
+    background-color: var(--lm-canvas);
+}
+
+.lm-edge-label--active { color: var(--gn-accent-text); -unity-font-style: bold; }
+
+/* ---------- Panel bên phải ---------- */
+
+.lm-detail__title { font-size: 15px; -unity-font-style: bold; margin: 0; }
+.lm-detail__subhead { font-size: 12px; -unity-font-style: bold; color: var(--gn-text-muted); margin: 10px 0 4px 0; }
+
+.lm-code {
+    font-size: 11px;
+    margin: 8px 0 4px 0;
+    padding: 6px 8px;
+    border-radius: 4px;
+    background-color: var(--gn-neutral-soft);
+    white-space: normal;
+}
+
+.lm-link { color: var(--gn-accent-text); font-size: 12px; padding: 2px 0; margin: 0; }
+.lm-link:hover { color: var(--gn-text); }
+.lm-chat__input { min-height: 56px; margin: 10px 0 0 0; }
+.lm-chat__input > .unity-text-field__input { white-space: normal; }
+.lm-clickable:hover { background-color: var(--gn-hover); }

@@ -1,0 +1,28 @@
+{
+    "name": "Gnurt.LogicMap.Editor",
+    "rootNamespace": "Gnurt.LogicMap",
+    "references": [
+        "Gnurt.Core",
+        "Gnurt.Core.Editor",
+        "Gnurt.LogicMap"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "GNURT_CORE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.gnurt.core",
+            "expression": "0.1.0",
+            "define": "GNURT_CORE"
+        }
+    ],
+    "noEngineReferences": false
+}

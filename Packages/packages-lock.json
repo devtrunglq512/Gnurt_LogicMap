@@ -1,5 +1,24 @@
 {
   "dependencies": {
+    "com.gnurt.core": {
+      "version": "https://github.com/devtrunglq512/Gnurt_Hub.git?path=/Packages/com.gnurt.core#dev/0.1.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.imgui": "1.0.0",
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "hash": "48368ab4caa03e42817cbc0cdd1d224e5b02c932"
+    },
+    "com.gnurt.logicmap": {
+      "version": "file:com.gnurt.logicmap",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.uielements": "1.0.0"
+      }
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,

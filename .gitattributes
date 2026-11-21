@@ -190,3 +190,23 @@
 # ---- Trường hợp đặc biệt ----
 # LightingData.asset luôn là binary (kể cả khi bật Force Text) và có thể rất lớn
 LightingData.asset filter=lfs diff=lfs merge=lfs -text
+
+# ---- Package UPM (Packages/com.gnurt.*): KHÔNG dùng LFS ----
+# Package được cài vào game qua git URL. Nếu file nằm trong LFS thì máy không có git-lfs
+# chỉ nhận file con trỏ, và mỗi lần ai đó cài hoặc đổi version đều trừ vào quota LFS của chủ repo.
+# Các dòng này nằm cuối file nên ghi đè các dòng LFS phía trên; file vẫn được coi là binary.
+Packages/com.gnurt.*/**/*.png   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.jpg   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.jpeg  -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.psd   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.tga   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.ttf   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.otf   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.dll   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.so    -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.aar   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.jar   -filter -diff -merge -text
+Packages/com.gnurt.*/**/*.bytes -filter -diff -merge -text
+
+# ---- Script bash: luôn giữ LF, kể cả trên Windows (CRLF làm bash báo lỗi) ----
+*.sh       text eol=lf

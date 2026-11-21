@@ -1,0 +1,14 @@
+{
+  "name": "com.gnurt.logicmap",
+  "displayName": "Gnurt LogicMap",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Editor tool that draws a game's structure as read-only flow charts (Gnurt > LogicMap): whether the project is split by scenes or prefabs, each map or minigame, and which script loads which scene. Needs com.gnurt.core (installed by Gnurt Hub).",
+  "author": {
+    "name": "Gnurt"
+  },
+  "dependencies": {
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0"
+  }
+}
