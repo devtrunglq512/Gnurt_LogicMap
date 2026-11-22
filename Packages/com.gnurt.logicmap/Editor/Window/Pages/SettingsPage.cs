@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 namespace Gnurt.LogicMap
 {
     /// <summary>Cài đặt cách quét: thư mục prefab-mục, thư mục bỏ qua, hàm chuyển scene tự viết, Claude Code CLI.</summary>
-    internal sealed class SettingsPage : GnurtPage
+    internal sealed class SettingsPage : LogicMapPage
     {
         public const string PageId = "settings";
 

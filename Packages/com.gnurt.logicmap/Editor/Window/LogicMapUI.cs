@@ -78,6 +78,7 @@ namespace Gnurt.LogicMap
             var exits = analysis.ExitsOf(section).Count();
             var badges = GnurtUI.Element("lm-tile__badges",
                 GnurtUI.Badge(FlowGraphs.Describe(section, Loc.T), section.kind == SectionKind.Scene && !section.inBuild ? BadgeKind.Warning : BadgeKind.Neutral),
+                RoleBadge(section, analysis),
                 GnurtUI.Badge($"{section.scripts.Count} script"));
             if (exits > 0) badges.Add(GnurtUI.Badge(Loc.T($"{exits} scene loads", $"{exits} lệnh chuyển"), BadgeKind.Accent));
             tile.Add(badges);
@@ -85,6 +86,103 @@ namespace Gnurt.LogicMap
             string pageId = FlowGraphs.PageIdOf(section);
             tile.RegisterCallback<ClickEvent>(_ => window.SelectPage(pageId));
             return tile;
+        }
+
+        /// <summary>Đường dẫn file trên một dòng riêng, chữ nhỏ, bôi đen copy được (panel hẹp không đủ chỗ cho kiểu tên – giá trị).</summary>
+        public static Label PathLine(string path)
+        {
+            var label = GnurtUI.Text(path, "lm-path");
+            label.selection.isSelectable = true;
+            return label;
+        }
+
+        /// <summary>Core (loading, menu…) hay Gameplay (map, minigame).</summary>
+        public static Label RoleBadge(SectionInfo section, ProjectAnalysis analysis) =>
+            analysis.RoleOf(section) == SectionRole.Core
+                ? GnurtUI.Badge("Core", BadgeKind.Neutral)
+                : GnurtUI.Badge(section.kind == SectionKind.Prefab ? Loc.T("Map / minigame", "Map / minigame") : "Gameplay", BadgeKind.Success);
+
+        /// <summary>Mọi prefab: prefab thường và prefab là map/minigame (có thể nằm ngoài danh sách nếu thư mục bị bỏ qua).</summary>
+        public static List<string> AllPrefabPaths(ProjectAnalysis analysis) =>
+            analysis.Scan.prefabs.Select(p => p.path)
+                .Union(analysis.Scan.sections.Where(s => s.kind == SectionKind.Prefab).Select(s => s.path))
+                .ToList();
+
+        /// <summary>Ô thư mục: tên và số file. Bấm để mở trang thư mục.</summary>
+        public static VisualElement FolderChip(FolderNode node, SectionKind kind, GnurtWindow window)
+        {
+            var chip = GnurtUI.Element("lm-chip", GnurtUI.Text(node.Label, "lm-chip__label"), GnurtUI.Text(node.Total.ToString(), "lm-chip__count"));
+            chip.tooltip = node.Path;
+            string pageId = FolderPage.IdFor(kind, node.Path);
+            chip.RegisterCallback<ClickEvent>(_ => window.SelectPage(pageId));
+            return chip;
+        }
+
+        /// <summary>Ô nhỏ của một scene/prefab trong trang thư mục.</summary>
+        public static VisualElement AssetTile(string path, ProjectAnalysis analysis, bool showFolder)
+        {
+            var section = analysis.Find(path);
+            bool isScene = path.EndsWith(".unity");
+            var tile = GnurtUI.Element("lm-asset-tile");
+            tile.AddToClassList(isScene ? "lm-asset-tile--scene" : section != null ? "lm-asset-tile--section" : "lm-asset-tile--prefab");
+            tile.EnableInClassList("lm-asset-tile--off", isScene && section != null && !section.inBuild);
+            tile.tooltip = path;
+            tile.Add(GnurtUI.Text(FolderTree.FileName(path), "lm-asset-tile__name"));
+
+            string meta;
+            if (isScene)
+                meta = section != null && section.inBuild ? $"#{section.buildIndex} · {(analysis.RoleOf(section) == SectionRole.Core ? "Core" : "Gameplay")}" : Loc.T("not in build", "ngoài build");
+            else
+            {
+                int usedBy = analysis.UsedBy(path).Count;
+                analysis.Prefabs.TryGetValue(path, out var prefab);
+                int scripts = section?.scripts.Count ?? prefab?.scripts.Count ?? 0;
+                meta = (section != null ? Loc.T("map/minigame · ", "map/minigame · ") : "") +
+                       $"{scripts} script · " + Loc.T($"used in {usedBy}", $"dùng ở {usedBy}");
+            }
+            if (showFolder) meta = path.Substring(0, Mathf.Max(0, path.LastIndexOf('/'))) + " · " + meta;
+            tile.Add(GnurtUI.Text(meta, "lm-asset-tile__meta"));
+            return tile;
+        }
+
+        /// <summary>Huy hiệu của một scene/prefab ở panel chi tiết.</summary>
+        public static VisualElement AssetBadges(string path, ProjectAnalysis analysis)
+        {
+            var section = analysis.Find(path);
+            var row = GnurtUI.Element("lm-tile__badges");
+            if (path.EndsWith(".unity"))
+            {
+                row.Add(section != null && section.inBuild
+                    ? GnurtUI.Badge($"Scene · #{section.buildIndex}", BadgeKind.Accent)
+                    : GnurtUI.Badge("Scene · " + Loc.T("not in build", "ngoài build"), BadgeKind.Warning));
+                if (section != null) row.Add(RoleBadge(section, analysis));
+            }
+            else
+            {
+                row.Add(GnurtUI.Badge("Prefab", BadgeKind.Warning));
+                if (section != null) row.Add(RoleBadge(section, analysis));
+            }
+            return row;
+        }
+
+        /// <summary>Mở trang riêng nếu là scene hoặc map/minigame; prefab thường thì mở bằng Unity.</summary>
+        public static void OpenAsset(string path, ProjectAnalysis analysis, GnurtWindow window)
+        {
+            var section = analysis.Find(path);
+            if (section != null) window.SelectPage(FlowGraphs.PageIdOf(section));
+            else DetailsPanel.Open(path);
+        }
+
+        /// <summary>Đi tới một scene/prefab trong LogicMap: scene thì mở trang của nó, prefab thì mở thư mục và chọn sẵn.</summary>
+        public static void ShowAsset(string path, ProjectAnalysis analysis, GnurtWindow window)
+        {
+            if (path.EndsWith(".unity"))
+            {
+                window.SelectPage(FlowGraphs.PageIdOf(analysis.Find(path) ?? new SectionInfo { path = path }));
+                return;
+            }
+            FolderPage.PendingSelection = path;
+            window.SelectPage(FolderPage.IdOfFile(SectionKind.Prefab, path));
         }
 
         /// <summary>"Từ Menu · tới Map 2, Main" — tóm tắt mục này nối với đâu.</summary>

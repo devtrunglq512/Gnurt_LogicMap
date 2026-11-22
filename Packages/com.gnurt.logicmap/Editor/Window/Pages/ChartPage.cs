@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace Gnurt.LogicMap
 {
     /// <summary>Trang có flow chart ở giữa và panel chi tiết + hỏi Claude bên phải.</summary>
-    internal abstract class ChartPage : GnurtPage
+    internal abstract class ChartPage : LogicMapPage
     {
         // Phần header, footer, tên trang và khoảng đệm chiếm chỗ; chart lấy phần chiều cao còn lại.
         const float ReservedHeight = 230f;
@@ -31,6 +31,7 @@ namespace Gnurt.LogicMap
 
         public override void OnShow()
         {
+            base.OnShow();
             Window.rootVisualElement.RegisterCallback<GeometryChangedEvent>(OnWindowResized);
             UpdateHeight();
         }

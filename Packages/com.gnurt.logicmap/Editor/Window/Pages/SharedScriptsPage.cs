@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Gnurt.LogicMap
 {
     /// <summary>Script chạy ở nhiều nơi: manager sống xuyên scene, script dùng ở nhiều mục, class không gắn vào scene.</summary>
-    internal sealed class SharedScriptsPage : GnurtPage
+    internal sealed class SharedScriptsPage : LogicMapPage
     {
         public const string PageId = "shared";
 

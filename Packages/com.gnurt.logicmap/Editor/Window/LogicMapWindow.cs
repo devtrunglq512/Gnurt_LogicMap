@@ -9,7 +9,13 @@ namespace Gnurt.LogicMap
     /// <summary>Window chính của LogicMap. Mở bằng menu Gnurt > LogicMap.</summary>
     public sealed class LogicMapWindow : GnurtWindow
     {
+        // Thư mục có nhiều scene hơn số này thì sidebar chỉ hiện thư mục, scene xem trong trang thư mục.
+        const int MaxSceneLeaves = 20;
+
         readonly List<GnurtPage> _pages = new List<GnurtPage>();
+        readonly List<SidebarEntry> _sidebar = new List<SidebarEntry>();
+        SidebarTree _tree;
+        string _currentPageId;
         bool _refreshQueued;
 
         [MenuItem("Gnurt/LogicMap", priority = 20)]
@@ -28,22 +34,81 @@ namespace Gnurt.LogicMap
             }
         }
 
+        // Sidebar: Tổng quan | SCENE và PREFAB chia theo đúng cây thư mục của project | Khác.
         protected override IEnumerable<GnurtPage> CreatePages()
         {
             _pages.Clear();
-            _pages.Add(new OverviewPage());
-            _pages.Add(new GameFlowPage());
+            _sidebar.Clear();
+
+            var overview = Header(Loc.T("Overview", "Tổng quan"));
+            AddPage(new OverviewPage(), overview, GnurtIconKind.Home);
+            AddPage(new GameFlowPage(), overview, GnurtIconKind.Tag);
 
             var analysis = ProjectScanner.Analysis;
             if (analysis != null)
             {
-                // Core: màn chung + script dùng chung. Gameplay: từng map/minigame.
-                _pages.AddRange(analysis.Sections(SectionRole.Core).Select(s => new SectionPage(s, SectionRole.Core)));
-                _pages.Add(new SharedScriptsPage());
-                _pages.AddRange(analysis.Sections(SectionRole.Gameplay).Select(s => new SectionPage(s, SectionRole.Gameplay)));
+                AddPage(new SharedScriptsPage(), overview, GnurtIconKind.Log);
+
+                var scenes = analysis.Scan.sections.Where(s => s.kind == SectionKind.Scene).Select(s => s.path).ToList();
+                var sceneHeader = Header("Scene", scenes.Count.ToString());
+                foreach (var node in FolderTree.Build(scenes)) AddFolder(node, SectionKind.Scene, sceneHeader, analysis);
+
+                var prefabs = LogicMapUI.AllPrefabPaths(analysis);
+                var prefabHeader = Header("Prefab", prefabs.Count.ToString());
+                foreach (var node in FolderTree.Build(prefabs)) AddFolder(node, SectionKind.Prefab, prefabHeader, analysis);
             }
-            _pages.Add(new SettingsPage());
+
+            var other = Header(Loc.T("Other", "Khác"));
+            AddPage(new SettingsPage(), other, GnurtIconKind.Settings);
             return _pages;
+        }
+
+        SidebarEntry Header(string label, string meta = null)
+        {
+            var header = new SidebarEntry { Header = true, Label = label, Meta = meta };
+            _sidebar.Add(header);
+            return header;
+        }
+
+        void AddPage(GnurtPage page, SidebarEntry parent, GnurtIconKind icon)
+        {
+            _pages.Add(page);
+            parent.Add(new SidebarEntry { PageId = page.Id, Label = page.Title, Icon = icon });
+        }
+
+        // Mỗi thư mục là một trang. Bên dưới là thư mục con, rồi tới scene (nếu thư mục không quá đông)
+        // và prefab là map/minigame. Prefab thường không hiện từng cái mà xem trong trang thư mục.
+        void AddFolder(FolderNode node, SectionKind kind, SidebarEntry parent, ProjectAnalysis analysis)
+        {
+            var page = new FolderPage(kind, node);
+            _pages.Add(page);
+            var sections = node.AllItems().Select(analysis.Find).Where(s => s != null).ToList();
+            var entry = parent.Add(new SidebarEntry
+            {
+                PageId = page.Id,
+                Label = node.Label,
+                Meta = node.Total.ToString(),
+                // Mặc định mở thư mục có scene trong build hoặc có map/minigame; thư mục khác (plugin...) gập lại.
+                Expanded = sections.Any(s => s.inBuild || s.kind == SectionKind.Prefab),
+            });
+
+            foreach (var child in node.Children) AddFolder(child, kind, entry, analysis);
+
+            var leaves = ProjectAnalysis.Ordered(node.Items.Select(analysis.Find).Where(s => s != null)).ToList();
+            bool listLeaves = kind == SectionKind.Prefab || node.Items.Count <= MaxSceneLeaves;
+            foreach (var section in leaves)
+            {
+                var sectionPage = new SectionPage(section, analysis.RoleOf(section));
+                _pages.Add(sectionPage);
+                if (!listLeaves) continue;
+                entry.Add(new SidebarEntry
+                {
+                    PageId = sectionPage.Id,
+                    Label = section.name,
+                    Meta = section.kind == SectionKind.Scene && section.inBuild ? "#" + section.buildIndex : null,
+                    Muted = section.kind == SectionKind.Scene && !section.inBuild,
+                });
+            }
         }
 
         protected override void AddHeaderControls(VisualElement controls)
@@ -75,6 +140,13 @@ namespace Gnurt.LogicMap
             if (ProjectScanner.Current == null) EditorApplication.delayCall += ProjectScanner.Rescan;
         }
 
+        /// <summary>Trang vừa được mở: tô mục tương ứng trên sidebar.</summary>
+        internal void OnPageShown(string pageId)
+        {
+            _currentPageId = pageId;
+            _tree?.Select(pageId);
+        }
+
         void QueueRefresh()
         {
             if (_refreshQueued) return;
@@ -88,7 +160,7 @@ namespace Gnurt.LogicMap
             };
         }
 
-        // Bổ sung cho khung GnurtWindow: sidebar cuộn được (game có nhiều map), nhãn cho scene ngoài build.
+        // Thay sidebar phẳng của GnurtWindow bằng cây cuộn được (game có thể có hàng trăm scene/prefab).
         void Decorate()
         {
             var root = rootVisualElement;
@@ -107,16 +179,10 @@ namespace Gnurt.LogicMap
                 scroll.Add(sidebar);
             }
 
-            var items = sidebar.Query(className: "gnurt-nav-item").ToList();
-            for (int i = 0; i < items.Count && i < _pages.Count; i++)
-            {
-                if (!(_pages[i] is SectionPage section) || section.InBuild) continue;
-                if (items[i].Q(className: "lm-nav-badge") != null) continue;
-                var badge = GnurtUI.Badge(Loc.T("off build", "ngoài build"));
-                badge.AddToClassList("lm-nav-badge");
-                items[i].Add(badge);
-                items[i].AddToClassList("lm-nav-item--off");
-            }
+            sidebar.Clear();
+            _tree = new SidebarTree(_sidebar, SelectPage);
+            sidebar.Add(_tree);
+            _tree.Select(_currentPageId);
         }
     }
 }

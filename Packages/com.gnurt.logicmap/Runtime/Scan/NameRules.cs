@@ -28,7 +28,10 @@ namespace Gnurt.LogicMap
         };
 
         /// <summary>Tách tên thành các từ viết thường: "0_WaitingRoom" → waiting, room.</summary>
-        public static List<string> Words(string name)
+        public static List<string> Words(string name) => Tokens(name).Select(t => t.ToLowerInvariant()).ToList();
+
+        /// <summary>Tách tên thành các từ, giữ nguyên chữ hoa: "Item_FireSword" → Item, Fire, Sword.</summary>
+        public static List<string> Tokens(string name)
         {
             var words = new List<string>();
             var current = new StringBuilder();
@@ -51,7 +54,7 @@ namespace Gnurt.LogicMap
                 bool afterLower = i > 0 && char.IsLower(name[i - 1]);
                 bool endOfAcronym = i > 0 && char.IsUpper(name[i - 1]) && i + 1 < name.Length && char.IsLower(name[i + 1]);
                 if (upper && (afterLower || endOfAcronym)) Flush();
-                current.Append(char.ToLowerInvariant(c));
+                current.Append(c);
             }
             Flush();
             return words;

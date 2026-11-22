@@ -123,16 +123,12 @@ namespace Gnurt.LogicMap
                 };
             }
 
-            // 2. Scene chưa vào build nhưng nằm cùng thư mục với scene trong build (map đang làm, bản thử...).
-            var sceneFolders = sections.Values.Select(s => FolderOf(s.path)).Where(f => f.StartsWith("Assets")).Distinct().ToArray();
-            if (sceneFolders.Length > 0)
+            // 2. Mọi scene khác trong Assets (map đang làm, bản thử, scene demo của plugin...), xem theo thư mục.
+            foreach (string guid in AssetDatabase.FindAssets("t:Scene", new[] { "Assets" }))
             {
-                foreach (string guid in AssetDatabase.FindAssets("t:Scene", sceneFolders))
-                {
-                    string path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (sections.ContainsKey(path) || !sceneFolders.Contains(FolderOf(path)) || settings.IsIgnored(path)) continue;
-                    sections[path] = new SectionInfo { path = path, name = Path.GetFileNameWithoutExtension(path), kind = SectionKind.Scene };
-                }
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (sections.ContainsKey(path) || settings.IsIgnored(path)) continue;
+                sections[path] = new SectionInfo { path = path, name = Path.GetFileNameWithoutExtension(path), kind = SectionKind.Scene };
             }
 
             // 3. Prefab đóng vai map/minigame: mỗi prefab nằm ngay trong thư mục đã chọn là một mục.
@@ -159,17 +155,36 @@ namespace Gnurt.LogicMap
             int done = 0;
             foreach (var section in sections.Values)
             {
-                if (Progress(section.name, 0.5f * done++ / sections.Count)) return null;
+                if (Progress(section.name, 0.35f * done++ / sections.Count)) return null;
                 var dependencies = AssetDatabase.GetDependencies(section.path, true);
-                section.scripts = dependencies
-                    .Where(d => d.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) && d.StartsWith("Assets/") && !settings.IsIgnored(d))
-                    .OrderBy(d => d, NameRules.Natural)
-                    .ToList();
+                section.scripts = ScriptsIn(dependencies, settings);
                 section.prefabs = dependencies.Where(d => d != section.path && prefabPaths.Contains(d)).OrderBy(d => d, NameRules.Natural).ToList();
+                section.uses = DirectPrefabs(section.path, settings);
+            }
+
+            // 5. Mọi prefab trong Assets: để xem theo thư mục và biết prefab nào được dùng ở đâu.
+            var allPrefabs = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(p => p.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && !settings.IsIgnored(p))
+                .Distinct()
+                .OrderBy(p => p, NameRules.Natural)
+                .ToList();
+            done = 0;
+            foreach (string path in allPrefabs)
+            {
+                if (done % 20 == 0 && Progress(Path.GetFileName(path), 0.35f + 0.25f * done / Math.Max(1, allPrefabs.Count))) return null;
+                done++;
+                scan.prefabs.Add(new AssetInfo
+                {
+                    path = path,
+                    name = Path.GetFileNameWithoutExtension(path),
+                    scripts = ScriptsIn(AssetDatabase.GetDependencies(path, true), settings),
+                    uses = DirectPrefabs(path, settings),
+                });
             }
             scan.sections = ProjectAnalysis.Ordered(sections.Values).ToList();
 
-            // 5. Đọc từng script: lệnh chuyển scene, DontDestroyOnLoad, hằng chuỗi (để hiểu LoadScene(SceneNames.Menu)).
+            // 6. Đọc từng script: lệnh chuyển scene, DontDestroyOnLoad, hằng chuỗi (để hiểu LoadScene(SceneNames.Menu)).
             var methods = SceneLoadParser.DefaultMethods.Concat(settings.extraLoadMethods.Where(m => !string.IsNullOrWhiteSpace(m))).ToList();
             var scriptPaths = AssetDatabase.FindAssets("t:MonoScript", new[] { "Assets" })
                 .Select(AssetDatabase.GUIDToAssetPath)
@@ -184,7 +199,7 @@ namespace Gnurt.LogicMap
             done = 0;
             foreach (string path in scriptPaths)
             {
-                if (Progress(Path.GetFileName(path), 0.5f + 0.5f * done++ / Math.Max(1, scriptPaths.Count))) return null;
+                if (Progress(Path.GetFileName(path), 0.6f + 0.4f * done++ / Math.Max(1, scriptPaths.Count))) return null;
                 string text;
                 try
                 {
@@ -205,7 +220,7 @@ namespace Gnurt.LogicMap
             }
             foreach (string key in ambiguous) constants.Remove(key); // trùng tên khác giá trị thì không đoán
 
-            var used = new HashSet<string>(sections.Values.SelectMany(s => s.scripts));
+            var used = new HashSet<string>(sections.Values.SelectMany(s => s.scripts).Concat(scan.prefabs.SelectMany(p => p.scripts)));
             foreach (var pair in facts)
             {
                 var result = pair.Value;
@@ -242,6 +257,20 @@ namespace Gnurt.LogicMap
         }
 
         static string FolderOf(string path) => (Path.GetDirectoryName(path) ?? "").Replace('\\', '/');
+
+        // Script của game trong danh sách phụ thuộc (bỏ script của package và thư mục bỏ qua).
+        static List<string> ScriptsIn(string[] dependencies, LogicMapSettings settings) =>
+            dependencies
+                .Where(d => d.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) && d.StartsWith("Assets/") && !settings.IsIgnored(d))
+                .OrderBy(d => d, NameRules.Natural)
+                .ToList();
+
+        // Prefab mà asset này tham chiếu trực tiếp (không tính prefab lồng sâu hơn).
+        static List<string> DirectPrefabs(string path, LogicMapSettings settings) =>
+            AssetDatabase.GetDependencies(path, false)
+                .Where(d => d != path && d.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && d.StartsWith("Assets/") && !settings.IsIgnored(d))
+                .OrderBy(d => d, NameRules.Natural)
+                .ToList();
 
         static string AssemblyOf(string scriptPath)
         {

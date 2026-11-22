@@ -33,13 +33,25 @@ namespace Gnurt.LogicMap
         public readonly List<ResolvedLoad> Loads = new List<ResolvedLoad>();
         public readonly Dictionary<string, ScriptInfo> Scripts = new Dictionary<string, ScriptInfo>();
 
+        public readonly Dictionary<string, AssetInfo> Prefabs = new Dictionary<string, AssetInfo>();
+
         readonly Dictionary<string, List<SectionInfo>> _users = new Dictionary<string, List<SectionInfo>>();
         readonly Dictionary<SectionInfo, SectionRole> _roles = new Dictionary<SectionInfo, SectionRole>();
+        readonly Dictionary<string, SectionInfo> _sections = new Dictionary<string, SectionInfo>();
+        readonly Dictionary<string, List<string>> _usedBy = new Dictionary<string, List<string>>();
         static readonly IReadOnlyList<SectionInfo> None = new SectionInfo[0];
+        static readonly IReadOnlyList<string> NoPaths = new string[0];
 
         public ProjectAnalysis(ProjectScan scan)
         {
             Scan = scan ?? new ProjectScan();
+
+            foreach (var section in Scan.sections) _sections[section.path] = section;
+            foreach (var prefab in Scan.prefabs) Prefabs[prefab.path] = prefab;
+            foreach (var section in Scan.sections)
+                foreach (string used in section.uses) AddUse(used, section.path);
+            foreach (var prefab in Scan.prefabs)
+                foreach (string used in prefab.uses) AddUse(used, prefab.path);
 
             foreach (var section in Scan.sections)
             {
@@ -91,7 +103,17 @@ namespace Gnurt.LogicMap
                 .ThenBy(s => s.inBuild ? s.buildIndex : int.MaxValue)
                 .ThenBy(s => s.name, NameRules.Natural);
 
-        public SectionInfo Find(string path) => Scan.sections.FirstOrDefault(s => s.path == path);
+        public SectionInfo Find(string path) => path != null && _sections.TryGetValue(path, out var section) ? section : null;
+
+        /// <summary>Scene và prefab tham chiếu trực tiếp tới prefab này.</summary>
+        public IReadOnlyList<string> UsedBy(string prefabPath) =>
+            prefabPath != null && _usedBy.TryGetValue(prefabPath, out var list) ? list : NoPaths;
+
+        void AddUse(string used, string user)
+        {
+            if (!_usedBy.TryGetValue(used, out var list)) _usedBy[used] = list = new List<string>();
+            if (!list.Contains(user)) list.Add(user);
+        }
 
         public IEnumerable<ResolvedLoad> ExitsOf(SectionInfo section) => Loads.Where(l => l.Source == section);
 

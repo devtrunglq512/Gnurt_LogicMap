@@ -37,7 +37,7 @@ namespace Gnurt.LogicMap
             if (!string.IsNullOrEmpty(node.Subtitle)) card.Add(GnurtUI.Hint(node.Subtitle));
 
             if (!string.IsNullOrEmpty(node.AssetPath))
-                card.Add(GnurtUI.KeyValue(Loc.T("File", "File"), node.Line > 0 ? $"{node.AssetPath}:{node.Line}" : node.AssetPath));
+                card.Add(LogicMapUI.PathLine(node.Line > 0 ? $"{node.AssetPath}:{node.Line}" : node.AssetPath));
 
             if (!string.IsNullOrEmpty(node.Detail))
             {
